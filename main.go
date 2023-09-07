@@ -34,6 +34,11 @@ func main() {
 	// Respond with simple pong
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(200, "Pong")
+
+		if viper.Get("ENV_NAME") == "Debug" {
+			fmt.Println(viper.GetString("KUMA_TOKENS"))
+			fmt.Println(viper.GetString("KUMA_URL"))
+		}
 	})
 
 	// Redirect to projects GH page
