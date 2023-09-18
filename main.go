@@ -10,8 +10,8 @@ import (
 )
 
 type Alert struct {
-	Receiver string `form:"receiver" json:"receiver" binding:"required"`
-	Status   string `form:"status" json:"status" binding:"required"`
+	Receiver string `json:"receiver" binding:"required"`
+	Status   string `json:"status" binding:"required"`
 }
 
 type URLToken struct {
@@ -29,16 +29,12 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	// Start Gin with logging and recovery middleware
 	r := gin.Default()
 
 	// Respond with simple pong
 	r.GET("/ping", func(c *gin.Context) {
-		c.String(200, "Pong")
-
-		if viper.Get("ENV_NAME") == "Debug" {
-			fmt.Println(viper.GetString("KUMA_TOKENS"))
-			fmt.Println(viper.GetString("KUMA_URL"))
-		}
+		c.JSON(http.StatusOK, "Pong")
 	})
 
 	// Redirect to projects GH page
@@ -48,28 +44,22 @@ func main() {
 
 	// Forward POST from Alertmanager to GET in Uptime Kuma
 	r.POST("/:id", func(c *gin.Context) {
-		// Assign environment variables and structs
-		var url_token URLToken
-		var alert Alert
-		kuma_tokens := viper.GetString("KUMA_TOKENS")
-		kuma_url := viper.GetString("KUMA_URL")
-
-		// Do the redirect or fail trying
-		if c.ShouldBindUri(&url_token) == nil && c.ShouldBind(&alert) == nil {
+		if c.ShouldBindUri(&url_token) == nil && c.ShouldBindJSON(&alert) == nil {
 			if strings.Contains(kuma_tokens, url_token.ID) {
 				resp, err := http.Get(fmt.Sprintf("%v/%v", kuma_url, url_token.ID))
 				if err != nil {
 					fmt.Printf("Error when trying to reach Uptime Kuma: %v", err)
 					return
 				}
-				c.String(resp.StatusCode, resp.Status)
+				c.JSON(resp.StatusCode, resp.Status)
 			} else {
-				c.String(401, "Unauthorized")
+				c.JSON(http.StatusUnauthorized, "Unauthorized")
 			}
 		} else {
-			c.String(404, "Not found")
+			c.JSON(http.StatusBadRequest, "Not found")
 		}
 	})
 
+	// Start the server
 	r.Run(":8000")
 }
