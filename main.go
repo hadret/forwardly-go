@@ -24,8 +24,17 @@ func main() {
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 
+	// Assign environment structs and variables
+	var url_token URLToken
+	var alert Alert
+	admin_pass := viper.GetString("ADMIN_PASS")
+	admin_user := viper.GetString("ADMIN_USER")
+	env_name := viper.GetString("ENV_NAME")
+	kuma_tokens := viper.GetString("KUMA_TOKENS")
+	kuma_url := viper.GetString("KUMA_URL")
+
 	// Set to release mode when in production environment
-	if viper.Get("ENV_NAME") == "Production" {
+	if env_name == "Production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -36,6 +45,17 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "Pong")
 	})
+
+	// Admin endpoint returning set environment variables
+	if admin_user != "" {
+		r.GET("/admin", gin.BasicAuth(gin.Accounts{admin_user: admin_pass}), func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"env_name":    env_name,
+				"kuma_tokens": kuma_tokens,
+				"kuma_url":    kuma_url,
+			})
+		})
+	}
 
 	// Redirect to projects GH page
 	r.GET("/", func(c *gin.Context) {
