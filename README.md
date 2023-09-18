@@ -8,3 +8,14 @@ That's it.
 This one is a Go rewrite from
 [Python/FastAPI](https://github.com/hadret/forwardly) using
 [Gin](https://gin-gonic.com).
+
+## Testing
+
+To test whether the `POST` payload works with the sample `alert.json` file run
+this:
+
+```shell
+curl -XPOST -H "Content-Type: application/json" -d@alert.json localhost:8000/AAaaAaAaaa
+```
+
+This assumes that `.env-sample` file is unchanged and symlinked/moved to `.env`.
