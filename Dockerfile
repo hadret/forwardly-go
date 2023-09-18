@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ## Build
-FROM golang:1.20-bullseye AS build
+FROM golang:1.21-bookworm AS build
 LABEL org.opencontainers.image.source https://github.com/hadret/forwardly-go
 
 WORKDIR /app
@@ -17,7 +17,7 @@ RUN go build -o /forwardly-go
 
 
 ## Deploy
-FROM gcr.io/distroless/base-debian11
+FROM gcr.io/distroless/base-debian12
 
 WORKDIR /
 
