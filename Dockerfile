@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
 ## Build
-FROM golang:1.22-bookworm AS build
-LABEL org.opencontainers.image.source https://github.com/hadret/forwardly-go
+FROM golang:1.23-bookworm AS build
+LABEL org.opencontainers.image.source=https://github.com/hadret/forwardly-go
 
 WORKDIR /app
 
