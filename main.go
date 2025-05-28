@@ -71,6 +71,7 @@ func main() {
 					fmt.Printf("Error when trying to reach Uptime Kuma: %v", err)
 					return
 				}
+				defer resp.Body.Close()
 				c.JSON(resp.StatusCode, resp.Status)
 			} else {
 				c.JSON(http.StatusUnauthorized, "Unauthorized")
